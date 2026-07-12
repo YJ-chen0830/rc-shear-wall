@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC 剪力牆設計 | RC Shear Wall Design</title>
+<script src="https://yj-chen0830.github.io/jrh-core/jrh-core.js?v=3" defer></script>
+<style>
+  :root{--navy:#0b1f3a;--navy2:#13284a;--gold:#c9a14a;--gold2:#e0bf6e;--bg:#f5f3ee;--ink:#1c2530;--line:#d8d2c2;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Noto Sans TC","Segoe UI",sans-serif;background:var(--bg);color:var(--ink);}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#f5f3ee;padding:28px 32px;}
+  header h1{margin:0;font-size:22px;}
+  header span{color:var(--gold2);font-size:13px;display:block;margin-top:4px;}
+  main{max-width:1060px;margin:0 auto;padding:28px 20px 60px;}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:24px;}
+  @media(max-width:820px){.grid{grid-template-columns:1fr;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+  .card h2{font-size:14.5px;margin:0 0 18px;color:var(--navy);font-weight:700;display:flex;align-items:center;gap:8px;border-bottom:2px solid var(--gold);padding-bottom:10px;}
+  label{display:block;font-size:12px;color:#666;margin:10px 0 4px;font-weight:500;}
+  input,select{width:100%;padding:8px 11px;border:1.5px solid var(--line);border-radius:7px;font-size:13.5px;background:#fafaf8;}
+  input:focus,select:focus{outline:none;border-color:var(--gold);}
+  .sec{font-size:12px;font-weight:700;color:var(--navy);margin:16px 0 6px;border-left:4px solid var(--gold);padding-left:9px;letter-spacing:.04em;text-transform:uppercase;}
+  .note{font-size:11.5px;color:#999;margin-top:12px;line-height:1.75;background:#f9f7f2;border-radius:6px;padding:9px 12px;}
+  button.calc-btn{margin-top:16px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--navy);color:#fff;font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.calc-btn:hover{background:var(--navy2);}
+  button.pro-btn{margin-top:12px;width:100%;padding:12px;border:none;border-radius:8px;background:var(--gold);color:var(--navy);font-size:14.5px;font-weight:700;cursor:pointer;}
+  button.pro-btn:hover{filter:brightness(1.08);}
+  table{width:100%;border-collapse:collapse;margin-top:10px;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  th{background:var(--navy);color:#f5f3ee;font-weight:600;font-size:12px;padding:9px 10px;text-align:left;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  td{padding:9px 10px;font-size:13px;border-bottom:1px solid var(--line);}
+  tr:nth-child(even) td{background:#f9f7f3;}
+  td:last-child{text-align:right;font-weight:700;}
+  .ok{color:#1a7d3a;font-weight:700;}.ng{color:#c0392b;font-weight:700;}
+  details.proc{margin-top:16px;border:1px solid var(--line);border-radius:8px;background:#fafaf8;overflow:hidden;}
+  details.proc summary{cursor:pointer;padding:10px 14px;font-weight:700;font-size:13px;color:var(--navy);user-select:none;list-style:none;display:flex;align-items:center;gap:6px;}
+  details.proc summary::before{content:"▶";font-size:10px;transition:transform .2s;}
+  details[open].proc summary::before{transform:rotate(90deg);}
+  details.proc pre{margin:0;padding:12px 16px 16px;font-family:"Courier New",monospace;font-size:11.5px;line-height:1.9;white-space:pre-wrap;color:#2c3e50;border-top:1px solid var(--line);}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .proj-section{background:#fff;border:1px solid var(--gold);border-radius:10px;padding:18px 22px;margin-bottom:20px;}
+  .proj-section h3{margin:0 0 12px;color:var(--navy);font-size:14px;font-weight:700;}
+  .proj-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  @media(max-width:600px){.proj-grid{grid-template-columns:1fr;}}
+  .mob-tabs{display:none;}
+  @media screen and (max-width:767px){
+    .mob-tabs{display:flex;background:var(--bg);border-bottom:2px solid var(--line);margin:0 -20px 0;padding:0 20px;}
+    .mob-tab{flex:1;padding:11px 4px;text-align:center;font-size:13.5px;font-weight:700;color:#888;cursor:pointer;background:transparent;border:none;border-bottom:3px solid transparent;}
+    .mob-tab.active{color:var(--navy);border-bottom-color:var(--gold);}
+    .grid{display:block;}
+    .grid>.card{display:none;}
+    .grid>.card.mob-active{display:block;}
+  }
+  @media print{
+    header,.no-print{display:none!important;}
+    body{background:#fff;margin:0;font-size:9pt;line-height:1.5;color:#111;}
+    main{padding:0;max-width:100%!important;}
+    .grid{grid-template-columns:1fr!important;gap:10pt!important;}
+    .card{box-shadow:none!important;border:1px solid #ccc!important;border-radius:4pt!important;padding:10pt 12pt!important;break-inside:avoid;}
+    .card h2{font-size:10.5pt!important;padding-bottom:6pt!important;margin-bottom:9pt!important;}
+    label{font-size:8pt!important;margin:6pt 0 2pt!important;}
+    .sec{font-size:8pt!important;margin:10pt 0 4pt!important;}
+    .note{font-size:7.5pt!important;padding:6pt 9pt!important;}
+    table{border:1px solid #bbb!important;border-radius:0!important;margin-top:6pt!important;}
+    th{font-size:8pt!important;padding:5pt 7pt!important;background:#0b1f3a!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    td{font-size:8.5pt!important;padding:5pt 7pt!important;}
+    tr:nth-child(even) td{background:#f5f5f5!important;}
+    details.proc{display:block!important;margin-top:10pt!important;border:1pt solid #0b1f3a!important;border-radius:4pt!important;break-inside:avoid;background:#f9f9f6!important;}
+    details.proc>summary{display:none!important;}
+    details.proc::before{content:"📋  計算過程（供第三方檢核）";display:block;font-weight:700;font-size:8pt;color:#0b1f3a;padding:6pt 10pt 4pt;border-bottom:1px solid #ccc;letter-spacing:.04em;}
+    details.proc>pre{font-size:7pt!important;line-height:1.65!important;white-space:pre-wrap!important;padding:6pt 10pt 10pt!important;color:#1a1a1a!important;font-family:"Courier New",monospace!important;}
+    .proj-section{border:1.5pt solid #0b1f3a!important;border-radius:4pt!important;}
+    button.pro-btn,button.calc-btn{display:none!important;}
+    @page{margin:15mm 12mm;size:A4;}
+  }
+</style>
+</head>
+<body data-tool="rsw">
+<header>
+  <a href="https://yj-chen0830.github.io/engineering-hub/" style="color:var(--gold2);font-size:12.5px;text-decoration:none;display:inline-block;margin-bottom:8px;">← 返回工程計算中心</a>
+  <h1>RC 剪力牆設計 (RC Shear Wall Design)</h1>
+  <span>面內剪力容量 + 邊界元素撓曲容量檢核 · ACI 318-19</span>
+</header>
+<main>
+
+<div class="proj-section no-print" id="projSection">
+  <h3>📁 專案資訊（列印時帶入計算書封面）</h3>
+  <div class="proj-grid">
+    <div><label>工程名稱</label><input id="pj-name" placeholder="○○工程"></div>
+    <div><label>工程地點</label><input id="pj-loc" placeholder="○○市○○區"></div>
+    <div><label>承造廠商</label><input id="pj-contractor" placeholder="○○營造股份有限公司"></div>
+    <div><label>文件編號</label><input id="pj-docno" placeholder="RSW-CAL-001"></div>
+    <div><label>計算者</label><input id="pj-calc" placeholder="姓名"></div>
+    <div><label>審核者</label><input id="pj-review" placeholder="姓名"></div>
+    <div><label>計算日期</label><input id="pj-date" type="date"></div>
+  </div>
+</div>
+
+<div class="mob-tabs">
+  <button class="mob-tab active" onclick="switchMobTab('rsw-in',this)">📋 輸入參數</button>
+  <button class="mob-tab" id="mobTab-rsw-r" onclick="switchMobTab('rsw-r',this)">📊 計算結果</button>
+</div>
+<div class="grid">
+  <div class="card mob-active" data-tab="rsw-in">
+    <h2>剪力牆幾何與配筋</h2>
+    <div class="row2">
+      <div><label>牆長 Lw (mm)</label><input id="rsw-Lw" type="number" value="3000" step="50" min="500"></div>
+      <div><label>牆厚 h (mm)</label><input id="rsw-h" type="number" value="250" step="10" min="100"></div>
+    </div>
+    <label>牆高 hw (mm，用於剪力係數αc計算)</label>
+    <input id="rsw-hw" type="number" value="9000" step="100" min="500">
+
+    <div class="sec">材料強度</div>
+    <div class="row2">
+      <div><label>f'c (MPa)</label><input id="rsw-fc" type="number" value="28" step="1" min="14"></div>
+      <div><label>fy (MPa)</label><input id="rsw-fy" type="number" value="420" step="10" min="280"></div>
+    </div>
+
+    <div class="sec">配筋</div>
+    <label>水平分布鋼筋比 ρt（每側面，總計 2×ρt）</label>
+    <input id="rsw-rhot" type="number" value="0.0025" step="0.0005" min="0.0020">
+    <div class="row2">
+      <div><label>邊界元素鋼筋量 As（每端，mm²）</label><input id="rsw-As" type="number" value="1500" step="50" min="0"></div>
+      <div><label>邊界筋形心保護層距 c（mm）</label><input id="rsw-c" type="number" value="150" step="10" min="30"></div>
+    </div>
+
+    <div class="sec">設計需求</div>
+    <div class="row2">
+      <div><label>Vu (kN)</label><input id="rsw-Vu" type="number" value="500" step="10" min="0"></div>
+      <div><label>Mu (kN·m)</label><input id="rsw-Mu" type="number" value="2000" step="50" min="0"></div>
+    </div>
+
+    <button class="calc-btn" onclick="calcRSW()">計算剪力牆容量</button>
+    <div class="note">面內剪力容量依 ACI 318-19 §11.5.4.3 一般式（Acv、αc 依 hw/Lw 內插）；撓曲容量採簡化邊界元素法（僅計入兩端集中配筋提供之力偶，保守忽略分布豎向鋼筋貢獻，且未計軸力交互作用）。僅供初步設計參考，正式設計（尤其特殊耐震剪力牆之圍束邊界元素、φ值耐震修正）應由結構工程師以完整 P-M-V 交互分析複核。</div>
+  </div>
+  <div class="card" data-tab="rsw-r">
+    <h2>容量檢核結果</h2>
+    <div id="rsw-result"><p style="color:#888">尚未計算</p></div>
+    <details class="proc" id="rsw-proc" style="display:none">
+      <summary>📋 計算過程（供第三方檢核）</summary>
+      <pre id="rsw-proc-text"></pre>
+    </details>
+    <button class="pro-btn no-print" onclick="openPro()">📄 產出計算書 PDF</button>
+  </div>
+</div>
+
+</main>
+<script>
+function switchMobTab(name,btn){
+  btn.parentElement.querySelectorAll('.mob-tab').forEach(function(t){t.classList.remove('active');});
+  btn.classList.add('active');
+  btn.parentElement.nextElementSibling.querySelectorAll('.card').forEach(function(c){
+    c.classList.toggle('mob-active',c.dataset.tab===name);
+  });
+}
+function openPro(){ JRH.checkEmail(function(){ jrhPrint('RC 剪力牆設計計算書'); }); }
+function v(id){return parseFloat(document.getElementById(id).value)||0;}
+function f1(x){return x.toFixed(1);}
+function f2(x){return x.toFixed(2);}
+function f3(x){return x.toFixed(3);}
+
+function calcRSW(){
+  var Lw=v('rsw-Lw'), h=v('rsw-h'), hw=v('rsw-hw'), fc=v('rsw-fc'), fy=v('rsw-fy');
+  var rhot=v('rsw-rhot'), As=v('rsw-As'), c=v('rsw-c');
+  var Vu=v('rsw-Vu'), Mu=v('rsw-Mu');
+
+  var hwLw = hw/Lw;
+  var alphac;
+  if (hwLw <= 1.5) alphac = 0.25;
+  else if (hwLw >= 2.0) alphac = 0.17;
+  else alphac = 0.25 + (0.17-0.25)*(hwLw-1.5)/(2.0-1.5);
+
+  var Acv = h*Lw;
+  var sqrtFc = Math.sqrt(fc);
+  var VnPerArea = alphac*sqrtFc + rhot*fy;
+  var Vn = Acv*VnPerArea/1000;
+  var VnCap = Acv*0.66*sqrtFc/1000;
+  var VnGoverning = Math.min(Vn, VnCap);
+  var capGoverns = VnCap < Vn;
+  var phiV = 0.75;
+  var phiVn = phiV*VnGoverning;
+  var shearOK = Vu <= phiVn;
+  var shearRatio = Vu/phiVn;
+
+  var T = As*fy/1000;
+  var a = (T*1000)/(0.85*fc*h);
+  var jd = Lw - c - a/2;
+  var Mn = T*jd/1000;
+  var phiM = 0.9;
+  var phiMn = phiM*Mn;
+  var flexOK = Mu <= phiMn;
+  var flexRatio = Mu/phiMn;
+
+  var res = document.getElementById('rsw-result');
+  res.innerHTML =
+    '<table><tr><th>項目</th><th>數值</th></tr>'+
+    '<tr><td>hw/Lw</td><td>'+f2(hwLw)+'</td></tr>'+
+    '<tr><td>剪力係數 αc</td><td>'+f3(alphac)+'</td></tr>'+
+    '<tr><td>牆截面積 Acv</td><td>'+f1(Acv)+' mm²</td></tr>'+
+    '<tr><td>標稱剪力強度 Vn'+(capGoverns?'（受上限控制）':'')+'</td><td>'+f1(VnGoverning)+' kN</td></tr>'+
+    '<tr><td>設計剪力容量 φVn（需≥Vu）</td><td>'+f1(phiVn)+' kN '+(shearOK?'<span class="ok">OK</span>':'<span class="ng">NG</span>')+'</td></tr>'+
+    '<tr><td>Vu/φVn</td><td>'+f2(shearRatio)+'</td></tr>'+
+    '<tr><td>邊界拉力 T = As×fy</td><td>'+f1(T)+' kN</td></tr>'+
+    '<tr><td>等效應力塊深度 a</td><td>'+f1(a)+' mm</td></tr>'+
+    '<tr><td>標稱撓曲強度 Mn</td><td>'+f1(Mn)+' kN·m</td></tr>'+
+    '<tr><td>設計撓曲容量 φMn（需≥Mu）</td><td>'+f1(phiMn)+' kN·m '+(flexOK?'<span class="ok">OK</span>':'<span class="ng">NG</span>')+'</td></tr>'+
+    '<tr><td>Mu/φMn</td><td>'+f2(flexRatio)+'</td></tr>'+
+    '</table>';
+
+  var p='';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  p+='  RC 剪力牆設計計算過程\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+  p+='【輸入】\n';
+  p+='  Lw='+Lw+' mm, h='+h+' mm, hw='+hw+' mm\n';
+  p+='  f\'c='+fc+' MPa, fy='+fy+' MPa, ρt='+rhot+'\n';
+  p+='  As（邊界，每端）='+As+' mm², c='+c+' mm\n';
+  p+='  Vu='+Vu+' kN, Mu='+Mu+' kN·m\n\n';
+  p+='【一】面內剪力容量（ACI 318-19 §11.5.4.3）\n';
+  p+='  hw/Lw = '+hw+'/'+Lw+' = '+f2(hwLw)+'\n';
+  if (hwLw<=1.5) p+='  hw/Lw ≤ 1.5 → αc = 0.25\n';
+  else if (hwLw>=2.0) p+='  hw/Lw ≥ 2.0 → αc = 0.17\n';
+  else p+='  1.5 < hw/Lw < 2.0 → 線性內插 αc = 0.25 + (0.17-0.25)×('+f2(hwLw)+'-1.5)/(2.0-1.5) = '+f3(alphac)+'\n';
+  p+='  Acv = h×Lw = '+h+'×'+Lw+' = '+f1(Acv)+' mm²\n';
+  p+='  Vn = Acv×(αc×√f\'c + ρt×fy)\n';
+  p+='     = '+f1(Acv)+'×('+f3(alphac)+'×√'+fc+' + '+rhot+'×'+fy+')/1000\n';
+  p+='     = '+f1(Acv)+'×('+f3(alphac*sqrtFc)+' + '+f3(rhot*fy)+')/1000\n';
+  p+='     = '+f1(Vn)+' kN\n';
+  p+='  上限檢核：Vn,max = Acv×0.66×√f\'c = '+f1(Acv)+'×0.66×'+f3(sqrtFc)+'/1000 = '+f1(VnCap)+' kN'+(capGoverns?'（控制）':'（不控制）')+'\n';
+  p+='  採用 Vn = min('+f1(Vn)+', '+f1(VnCap)+') = '+f1(VnGoverning)+' kN\n';
+  p+='  φVn = 0.75×'+f1(VnGoverning)+' = '+f1(phiVn)+' kN\n';
+  p+='  Vu/φVn = '+f2(Vu)+'/'+f1(phiVn)+' = '+f2(shearRatio)+' → '+(shearOK?'OK ✓':'NG ✗')+'\n\n';
+  p+='【二】面內撓曲容量（簡化邊界元素法，保守忽略分布筋貢獻）\n';
+  p+='  邊界拉力 T = As×fy = '+As+'×'+fy+'/1000 = '+f1(T)+' kN\n';
+  p+='  等效應力塊深度 a = T/(0.85×f\'c×h) = '+f1(T)+'e3/(0.85×'+fc+'×'+h+') = '+f1(a)+' mm\n';
+  p+='  力臂 jd = Lw − c − a/2 = '+Lw+' − '+c+' − '+f1(a/2)+' = '+f1(jd)+' mm\n';
+  p+='  Mn = T×jd = '+f1(T)+'×'+f1(jd)+'/1000 = '+f1(Mn)+' kN·m\n';
+  p+='  φMn = 0.9×'+f1(Mn)+' = '+f1(phiMn)+' kN·m\n';
+  p+='  Mu/φMn = '+f2(Mu)+'/'+f1(phiMn)+' = '+f2(flexRatio)+' → '+(flexOK?'OK ✓':'NG ✗')+'\n\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
+  p+='  參考：ACI 318-19 §11.5.4（一般剪力牆剪力設計）、簡化邊界元素撓曲法\n';
+  p+='  特殊耐震剪力牆之圍束邊界元素設計、軸力-彎矩交互作用未納入，應由結構工程師另行檢討。\n';
+  p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━';
+  document.getElementById('rsw-proc-text').textContent=p;
+  document.getElementById('rsw-proc').style.display='';
+  if(window.innerWidth<768){var b=document.getElementById('mobTab-rsw-r');if(b)switchMobTab('rsw-r',b);}
+}
+</script>
+<script>
+window.jrhDocMeta={
+ "doc": "RC 剪力牆設計計算書",
+ "codes": [
+  "ACI 318-19 §11.5.4（剪力牆面內剪力設計一般規定）",
+  "簡化邊界元素撓曲法（Boundary Element Method，preliminary design）"
+ ],
+ "notes": [
+  "撓曲容量採簡化邊界元素法，僅計入牆兩端集中配筋提供之力偶，保守忽略分布豎向鋼筋貢獻，亦未考慮軸力-彎矩交互作用。",
+  "特殊結構剪力牆（Special Structural Wall）之圍束邊界元素設計、耐震細部要求未納入本工具，位於高地震設計等級之建築應由結構工程師依 ACI 318-19 §18.10 完整檢討。",
+  "本工具剪力設計 φ=0.75 為一般規定，特殊耐震剪力牆依容量設計原則於特定條件下需採 φ=0.6，應由結構工程師判斷是否適用。",
+  "本計算書應經結構工程技師簽證後，始得作為正式送審文件。"
+ ]
+};
+</script>
+</body>
+</html>
