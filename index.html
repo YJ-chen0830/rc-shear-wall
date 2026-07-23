@@ -197,7 +197,17 @@ function calcRSW(){
   var a = (T*1000)/(0.85*fc*h);
   var jd = Lw - c - a/2;
   var Mn = T*jd/1000;
-  var phiM = 0.9;
+
+  var Es = 200000;
+  var beta1 = fc<=28?0.85:(fc>=55?0.65:0.85-0.05*(fc-28)/7);
+  var cNA = a/beta1;
+  var dt = Lw - c;
+  var epsT = cNA>0 ? 0.003*(dt-cNA)/cNA : 0;
+  var epsTy = fy/Es;
+  var phiM, phiZone;
+  if(epsT>=0.005){ phiM=0.90; phiZone='拉力控制'; }
+  else if(epsT<=epsTy){ phiM=0.65; phiZone='壓力控制'; }
+  else{ phiM=0.65+(epsT-epsTy)*(0.25/(0.005-epsTy)); phiZone='過渡區'; }
   var phiMn = phiM*Mn;
   var flexOK = Mu <= phiMn;
   var flexRatio = Mu/phiMn;
@@ -213,6 +223,7 @@ function calcRSW(){
     '<tr><td>Vu/φVn</td><td>'+f2(shearRatio)+'</td></tr>'+
     '<tr><td>邊界拉力 T = As×fy</td><td>'+f1(T)+' kN</td></tr>'+
     '<tr><td>等效應力塊深度 a</td><td>'+f1(a)+' mm</td></tr>'+
+    '<tr><td>拉力筋應變 εt / 應變分區</td><td>'+f3(epsT)+'，'+phiZone+'，φ = '+f2(phiM)+'</td></tr>'+
     '<tr><td>標稱撓曲強度 Mn</td><td>'+f1(Mn)+' kN·m</td></tr>'+
     '<tr><td>設計撓曲容量 φMn（需≥Mu）</td><td>'+f1(phiMn)+' kN·m '+(flexOK?'<span class="ok">OK</span>':'<span class="ng">NG</span>')+'</td></tr>'+
     '<tr><td>Mu/φMn</td><td>'+f2(flexRatio)+'</td></tr>'+
@@ -245,8 +256,14 @@ function calcRSW(){
   p+='  邊界拉力 T = As×fy = '+As+'×'+fy+'/1000 = '+f1(T)+' kN\n';
   p+='  等效應力塊深度 a = T/(0.85×f\'c×h) = '+f1(T)+'e3/(0.85×'+fc+'×'+h+') = '+f1(a)+' mm\n';
   p+='  力臂 jd = Lw − c − a/2 = '+Lw+' − '+c+' − '+f1(a/2)+' = '+f1(jd)+' mm\n';
-  p+='  Mn = T×jd = '+f1(T)+'×'+f1(jd)+'/1000 = '+f1(Mn)+' kN·m\n';
-  p+='  φMn = 0.9×'+f1(Mn)+' = '+f1(phiMn)+' kN·m\n';
+  p+='  Mn = T×jd = '+f1(T)+'×'+f1(jd)+'/1000 = '+f1(Mn)+' kN·m\n\n';
+  p+='  β1 = '+f3(beta1)+'（依 f\'c='+fc+' MPa）\n';
+  p+='  中性軸深度 c_NA = a/β1 = '+f1(a)+'/'+f3(beta1)+' = '+f1(cNA)+' mm\n';
+  p+='  dt = Lw − c = '+Lw+' − '+c+' = '+f1(dt)+' mm\n';
+  p+='  εt = 0.003×(dt−c_NA)/c_NA = '+f3(epsT)+'\n';
+  p+='  εty = fy/Es = '+fy+'/'+Es+' = '+f3(epsTy)+'\n';
+  p+='  '+phiZone+' → φ = '+f2(phiM)+'（ACI 318-19 §21.2.2）\n';
+  p+='  φMn = '+f2(phiM)+'×'+f1(Mn)+' = '+f1(phiMn)+' kN·m\n';
   p+='  Mu/φMn = '+f2(Mu)+'/'+f1(phiMn)+' = '+f2(flexRatio)+' → '+(flexOK?'OK ✓':'NG ✗')+'\n\n';
   p+='━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n';
   p+='  參考：ACI 318-19 §11.5.4（一般剪力牆剪力設計）、簡化邊界元素撓曲法\n';
@@ -268,6 +285,7 @@ window.jrhDocMeta={
   "撓曲容量採簡化邊界元素法，僅計入牆兩端集中配筋提供之力偶，保守忽略分布豎向鋼筋貢獻，亦未考慮軸力-彎矩交互作用。",
   "特殊結構剪力牆（Special Structural Wall）之圍束邊界元素設計、耐震細部要求未納入本工具，位於高地震設計等級之建築應由結構工程師依 ACI 318-19 §18.10 完整檢討。",
   "本工具剪力設計 φ=0.75 為一般規定，特殊耐震剪力牆依容量設計原則於特定條件下需採 φ=0.6，應由結構工程師判斷是否適用。",
+  "撓曲設計 φ 依 ACI 318-19 §21.2.2 應變分區動態計算（εt≥0.005 拉力控制 φ=0.90；εt≤εty 壓力控制 φ=0.65；中間過渡區線性內插），非固定採用 0.9。",
   "本計算書應經結構工程技師簽證後，始得作為正式送審文件。"
  ]
 };
